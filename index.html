@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responsive Simon Says Game</title>
+  <style>
+    body {
+      text-align: center;
+      background-color: rgb(208, 208, 208);
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin: 20px;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin: 10px;
+    }
+
+    .btn-container {
+      position: relative;
+      width: 80vw; /* Responsive width */
+      max-width: 400px; /* Maximum size for larger screens */
+      height: 80vw;
+      max-height: 400px;
+      margin: 50px auto;
+    }
+
+    .btn {
+      width: 50%; /* Adjusted to container size */
+      height: 50%;
+      position: absolute;
+      cursor: pointer;
+    }
+
+    .yellow {
+      top: 0;
+      left: 0;
+      border-radius: 50% 0 0 0;
+      background-color: rgb(239, 239, 66);
+    }
+
+    .green {
+      top: 0;
+      left: 50%;
+      border-radius: 0 50% 0 0;
+      background-color: rgb(117, 167, 42);
+    }
+
+    .red {
+      top: 50%;
+      left: 0;
+      border-radius: 0 0 0 50%;
+      background-color: rgb(185, 34, 34);
+    }
+
+    .purple {
+      top: 50%;
+      left: 50%;
+      border-radius: 0 0 50% 0;
+      background-color: rgb(165, 41, 165);
+    }
+
+    .divider {
+      position: absolute;
+      background-color: rgb(208, 208, 208);
+    }
+
+    .divider.horizontal {
+      width: 100%;
+      height: 5%;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+
+    .divider.vertical {
+      width: 5%;
+      height: 100%;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    #restart-btn {
+      margin: 20px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .gameFlash{
+  background-color: #e8f6e6;
+}
+
+.userFlash{
+  background-color: rgb(214, 255, 154);
+}
+    #restart-btn:hover {
+      background-color: #45a049;
+    }
+
+    /* Media Queries for Smaller Screens */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      h2 {
+        font-size: 1.2rem;
+      }
+
+      .btn-container {
+        width: 90vw;
+        height: 90vw;
+      }
+
+      #restart-btn {
+        font-size: 0.9rem;
+        padding: 8px 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.2rem;
+      }
+
+      h2 {
+        font-size: 1rem;
+      }
+
+      .btn-container {
+        width: 95vw;
+        height: 95vw;
+      }
+
+      #restart-btn {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Simon Says Game</h1>
+  <h2>Press any key to start the game</h2>
+
+  <div class="btn-container">
+    <div class="btn yellow" id="yellow"></div>
+    <div class="btn green" id="green"></div>
+    <div class="btn red" id="red"></div>
+    <div class="btn purple" id="purple"></div>
+    <div class="divider horizontal"></div>
+    <div class="divider vertical"></div>
+  </div>
+
+  <button id="restart-btn" onclick="resetGame()">Restart</button>
+
+  <script >
+    let gameSeq = [];
+let userSeq = [];
+
+let h3 = document.querySelector('h2');
+let buttons = document.querySelectorAll('.btn');
+
+let color = ["yellow" , "green" , "red" , "purple"];
+let started = false;
+let level = 0;
+
+document.addEventListener("keypress", function(){
+    if(started == false){
+        console.log("Game is started");
+        started = true;
+
+        levelUp();
+    }
+})
+
+function gameFlash(btn){
+    btn.classList.add('gameFlash');
+    setTimeout(function(){
+        btn.classList.remove('gameFlash')
+    } , 250);
+    
+}
+function userFlash(btn){
+    btn.classList.add('userFlash');
+    setTimeout(function(){
+        btn.classList.remove('userFlash')
+    } , 250);
+    
+}
+function levelUp(){
+    level++;
+    h3.innerText = `Level ${level}`;
+    let idx = Math.floor(Math.random()*4);
+    let random = `.`+ color[idx];
+
+    let btn = document.querySelector(random);
+    gameSeq.push(color[idx]);
+    console.log(gameSeq);
+    gameFlash(btn);
+    userSeq = [];
+}
+
+function checkAns(idx){
+
+    if(userSeq[idx] === gameSeq[idx]){
+        if(userSeq.length == gameSeq.length){
+            setTimeout(levelUp , 1000);
+        }
+    } else{
+        h3.innerText = `Game is over your score is ${level}`;
+        resetGame();
+        let body = document.querySelector('body');
+        body.style.backgroundColor = 'red';
+        setTimeout(function(){
+            body.style.backgroundColor = 'rgb(208,208,208)';
+        } , 500);
+    }
+}
+
+function btnPress(){
+    console.log(this);
+    userFlash(this);
+    let userColor = this.getAttribute("id");
+    userSeq.push(userColor);
+    checkAns(userSeq.length - 1);
+}
+
+for(btn of buttons){
+    btn.addEventListener("click", btnPress);
+}
+
+
+function resetGame(){
+    started = false;
+    gameSeq = [];
+    userSeq = [];
+    level = 0;
+    h3.innerText = "Press any key to start the game";
+} 
+  </script>
+</body>
+</html>
